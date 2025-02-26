@@ -1,148 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>investment calculator</title>
+    <title>Investment Calculator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background-color: #f9fafb;
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-        
-        .calculator {
-            max-width: 500px;
+
+        .container {
+            max-width: 600px;
             width: 100%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+        }
+
+        .calculator {
+            background-color: white;
+            border-radius: var(--border-radius);
             overflow: hidden;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
         }
-        
+
         .calculator-header {
-            background-color: #f5f5f5;
-            padding: 15px 20px;
-            border-bottom: 1px solid #e0e0e0;
+            background-color: var(--primary-color);
+            padding: 20px;
+            color: white;
         }
-        
+
         .calculator-title {
             margin: 0;
-            font-size: 20px;
-            color: #333;
+            font-size: 24px;
+            font-weight: 600;
         }
-        
+
+        .calculator-subtitle {
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
         .calculator-content {
-            padding: 20px;
+            padding: 24px;
         }
-        
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
         .input-group {
-            margin-bottom: 15px;
+            flex: 1;
+            position: relative;
         }
-        
+
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 500;
             font-size: 14px;
+            color: var(--gray-700);
         }
-        
+
+        .input-wrapper {
+            position: relative;
+        }
+
         input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 12px 16px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: all 0.2s;
         }
-        
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--gray-700);
+        }
+
+        input.with-symbol {
+            padding-left: 28px;
+        }
+
         .results {
-            background-color: #f9f9f9;
+            background-color: var(--gray-100);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+        }
+
+        .results-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+        }
+
+        .results-title svg {
+            margin-right: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .result-value {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .profit-positive {
+            color: var(--success-color);
+        }
+
+        .profit-negative {
+            color: var(--danger-color);
+        }
+
+        .profit-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .profit-summary {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--gray-300);
+        }
+
+        .info-box {
+            background-color: #e0f2fe;
+            border-left: 4px solid #0ea5e9;
             padding: 15px;
             border-radius: 4px;
             margin-top: 20px;
+            font-size: 14px;
         }
-        
-        .results h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 16px;
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
         }
-        
-        .results p {
-            margin: 8px 0;
+
+        .info-title svg {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="calculator">
-        <div class="calculator-header">
-            <h2 class="calculator-title">Bitcoin Profit Calculator</h2>
-        </div>
-        <div class="calculator-content">
-            <div class="input-group">
-                <label for="investment">Investment Amount ($)</label>
-                <input type="number" id="investment" value="50">
+    <div class="container">
+        <div class="calculator">
+            <div class="calculator-header">
+                <h1 class="calculator-title">Investment Calculator</h1>
+                <p class="calculator-subtitle">Calculate your potential investment returns</p>
             </div>
-            <div class="input-group">
-                <label for="purchasePrice">Purchase Price ($)</label>
-                <input type="number" id="purchasePrice" value="85000">
-            </div>
-            <div class="input-group">
-                <label for="targetPrice">Target Price ($)</label>
-                <input type="number" id="targetPrice" value="100000">
-            </div>
-            
-            <div class="results" id="results">
-                <h3>Results</h3>
-                <p>Bitcoin Purchased: <span id="bitcoinPurchased">0.000588</span></p>
-                <p>Purchase Price: $<span id="formattedPurchasePrice">85,000</span></p>
-                <p>Target Price: $<span id="formattedTargetPrice">100,000</span></p>
-                <p>Final Value: $<span id="finalValue">58.80</span></p>
-                <p>Profit Amount: $<span id="profitAmount">8.80</span></p>
-                <p>Profit Percentage: <span id="profitPercentage">17.60</span>%</p>
+            <div class="calculator-content">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="investment">Investment Amount</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="text" id="investment" class="with-symbol" value="100" min="0" step="any">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="purchasePrice">Purchase Price</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="text" id="purchasePrice" class="with-symbol" value="1.1" min="0.01" step="any">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="targetPrice">Target Price</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="text" id="targetPrice" class="with-symbol" value="1.2" min="0.01" step="any">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results" id="results">
+                    <h3 class="results-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Results
+                    </h3>
+                    <div class="result-row">
+                        <span class="result-label">Amount Purchased:</span>
+                        <span class="result-value" id="bitcoinPurchased">0</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Investment Amount:</span>
+                        <span class="result-value">$<span id="investmentAmount">0</span></span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Purchase Price:</span>
+                        <span class="result-value">$<span id="formattedPurchasePrice">0</span></span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Target Price:</span>
+                        <span class="result-value">$<span id="formattedTargetPrice">0</span></span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Final Value:</span>
+                        <span class="result-value">$<span id="finalValue">0</span></span>
+                    </div>
+
+                    <div class="profit-summary">
+                        <div class="result-row">
+                            <span class="result-label">Profit/Loss Amount:</span>
+                            <span class="result-value" id="profitAmountContainer">
+                                <span id="profitAmountIndicator" class="profit-indicator"></span>
+                                $<span id="profitAmount">0</span>
+                            </span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Profit/Loss Percentage:</span>
+                            <span class="result-value" id="profitPercentageContainer">
+                                <span id="profitPercentageIndicator" class="profit-indicator"></span>
+                                <span id="profitPercentage">0</span>%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Investment Tips
+                    </div>
+                    <p>This calculator helps you estimate potential returns, but remember that actual results may vary. Always consider market volatility and other factors before investing.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Format number with commas
-        function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        // Format number for display (with commas, no trailing zeros)
+        function formatNumberDisplay(num) {
+            // Convert to number if it's a string
+            num = typeof num === 'string' ? parseFloat(num) : num;
+            
+            // Round to 2 decimal places
+            const rounded = Math.round(num * 100) / 100;
+            
+            // Format with commas
+            let formattedNum = rounded.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+            
+            return formattedNum;
         }
         
-        // Calculate profit and update UI
-        function calculateProfit() {
-            const investmentAmount = parseFloat(document.getElementById('investment').value);
-            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
-            const targetPrice = parseFloat(document.getElementById('targetPrice').value);
+        // Format amount purchased (with appropriate decimals but no trailing zeros)
+        function formatAmountPurchased(num) {
+            if (num === 0) return "0";
             
-            if (isNaN(investmentAmount) || isNaN(purchasePrice) || isNaN(targetPrice) || 
-                purchasePrice <= 0 || targetPrice <= 0) {
-                return;
+            // Determine needed decimal places based on number size
+            let decimals = 2;
+            if (num < 0.01) decimals = 6;
+            else if (num < 0.1) decimals = 4;
+            else if (num < 1) decimals = 3;
+            
+            // Format with fixed decimals
+            let formatted = num.toFixed(decimals);
+            
+            // Remove trailing zeros
+            formatted = formatted.replace(/\.?0+$/, '');
+            
+            return formatted;
+        }
+        
+        // Format input with commas as user types
+        function formatInputWithCommas(input) {
+            // Get cursor position
+            let cursorPos = input.selectionStart;
+            let oldLength = input.value.length;
+            
+            // Get input value and remove non-numeric characters except decimal point
+            let value = input.value.replace(/[^\d.]/g, '');
+            
+            // Don't allow multiple decimal points
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
             }
             
+            // Handle integer part (before decimal)
+            if (parts.length > 0) {
+                // Add commas to integer part
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                
+                // Combine with decimal part if exists
+                value = parts.length === 2 ? parts[0] + '.' + parts[1] : parts[0];
+            }
+            
+            // Calculate new cursor position
+            const newLength = value.length;
+            cursorPos = cursorPos + (newLength - oldLength);
+            
+            // Update the input value
+            input.value = value;
+            
+            // Reset cursor position
+            input.setSelectionRange(cursorPos, cursorPos);
+        }
+
+        // Parse numeric value from formatted string
+        function parseFormattedNumber(formattedValue) {
+            // Remove commas and convert to number
+            return parseFloat(formattedValue.replace(/,/g, ''));
+        }
+
+        // Calculate profit and update UI
+        function calculateProfit() {
+            // Get and parse input values
+            const investmentInput = document.getElementById('investment').value;
+            const purchasePriceInput = document.getElementById('purchasePrice').value;
+            const targetPriceInput = document.getElementById('targetPrice').value;
+            
+            const investmentAmount = parseFormattedNumber(investmentInput);
+            const purchasePrice = parseFormattedNumber(purchasePriceInput);
+            const targetPrice = parseFormattedNumber(targetPriceInput);
+
+            if (isNaN(investmentAmount) || isNaN(purchasePrice) || isNaN(targetPrice) ||
+                investmentAmount <= 0 || purchasePrice <= 0 || targetPrice <= 0) {
+                // Show error or return
+                return;
+            }
+
             const bitcoinPurchased = investmentAmount / purchasePrice;
             const finalValue = bitcoinPurchased * targetPrice;
             const profitAmount = finalValue - investmentAmount;
             const profitPercentage = (profitAmount / investmentAmount) * 100;
-            
-            document.getElementById('bitcoinPurchased').textContent = bitcoinPurchased.toFixed(6);
-            document.getElementById('formattedPurchasePrice').textContent = formatNumber(purchasePrice);
-            document.getElementById('formattedTargetPrice').textContent = formatNumber(targetPrice);
-            document.getElementById('finalValue').textContent = formatNumber(finalValue.toFixed(2));
-            document.getElementById('profitAmount').textContent = formatNumber(profitAmount.toFixed(2));
-            document.getElementById('profitPercentage').textContent = profitPercentage.toFixed(2);
+
+            // Update UI
+            document.getElementById('bitcoinPurchased').textContent = formatAmountPurchased(bitcoinPurchased);
+            document.getElementById('investmentAmount').textContent = formatNumberDisplay(investmentAmount);
+            document.getElementById('formattedPurchasePrice').textContent = formatNumberDisplay(purchasePrice);
+            document.getElementById('formattedTargetPrice').textContent = formatNumberDisplay(targetPrice);
+            document.getElementById('finalValue').textContent = formatNumberDisplay(finalValue);
+            document.getElementById('profitAmount').textContent = formatNumberDisplay(Math.abs(profitAmount));
+            document.getElementById('profitPercentage').textContent = formatNumberDisplay(Math.abs(profitPercentage));
+
+            // Set color based on profit or loss
+            const profitAmountContainer = document.getElementById('profitAmountContainer');
+            const profitPercentageContainer = document.getElementById('profitPercentageContainer');
+            const profitAmountIndicator = document.getElementById('profitAmountIndicator');
+            const profitPercentageIndicator = document.getElementById('profitPercentageIndicator');
+
+            if (profitAmount > 0) {
+                profitAmountContainer.classList.add('profit-positive');
+                profitAmountContainer.classList.remove('profit-negative');
+                profitPercentageContainer.classList.add('profit-positive');
+                profitPercentageContainer.classList.remove('profit-negative');
+                profitAmountIndicator.style.backgroundColor = 'var(--success-color)';
+                profitPercentageIndicator.style.backgroundColor = 'var(--success-color)';
+            } else {
+                profitAmountContainer.classList.add('profit-negative');
+                profitAmountContainer.classList.remove('profit-positive');
+                profitPercentageContainer.classList.add('profit-negative');
+                profitPercentageContainer.classList.remove('profit-positive');
+                profitAmountIndicator.style.backgroundColor = 'var(--danger-color)';
+                profitPercentageIndicator.style.backgroundColor = 'var(--danger-color)';
+            }
         }
-        
-        // Add event listeners to inputs
-        document.getElementById('investment').addEventListener('input', calculateProfit);
-        document.getElementById('purchasePrice').addEventListener('input', calculateProfit);
-        document.getElementById('targetPrice').addEventListener('input', calculateProfit);
-        
-        // Calculate initial values
-        calculateProfit();
+
+        // Set up input formatting and event listeners
+        function initInputs() {
+            const inputs = [
+                document.getElementById('investment'),
+                document.getElementById('purchasePrice'),
+                document.getElementById('targetPrice')
+            ];
+            
+            inputs.forEach(input => {
+                // Format initial value
+                formatInputWithCommas(input);
+                
+                // Set up event listeners
+                input.addEventListener('input', function(event) {
+                    formatInputWithCommas(this);
+                    calculateProfit();
+                });
+                
+                input.addEventListener('blur', function(event) {
+                    if (this.value === '') {
+                        this.value = '0';
+                    }
+                    calculateProfit();
+                });
+            });
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initInputs();
+            calculateProfit();
+        });
     </script>
 </body>
+
 </html>
